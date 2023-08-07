@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -7,7 +8,7 @@ from django.utils.text import slugify
 
 def image_upload(instance, filename):
     imagename, extention = filename.split(".")
-    return f"jobs/{instance.id}/{instance.last_edit}.{extention}"
+    return f"jobs/{instance.id}/{instance.owner}.{extention}"
 
 
 class Job(models.Model):
@@ -15,6 +16,7 @@ class Job(models.Model):
         ("FT", "Full Time"),
         ("PT", "Part Time"),
     )
+    owner = models.ForeignKey(User, related_name="job_owner", on_delete=models.CASCADE)
     category = models.ForeignKey("Category", on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     job_type = models.CharField(max_length=2, choices=JOB_TYPE, null= True, blank=True)
@@ -44,12 +46,17 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+def apply_file(instance, filename):
+    name, extention = filename.split(".")
+    return f"apply/{instance.job.title}/{instance}.{extention}"
+
+
 class Apply(models.Model):
     job = models.ForeignKey(Job, related_name="apply_job", on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
     website = models.URLField()
-    cv = models.FileField(upload_to="apply/")
+    cv = models.FileField(upload_to=apply_file)
     cover_letter = models.TextField(max_length=500)
     created_at = models.DateTimeField(auto_now=True)
 
