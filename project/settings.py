@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     #apps
     "job",
+    "django_bootstrap5",
 
 ]
 
