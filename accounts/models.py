@@ -4,13 +4,15 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
-
+def profile_image(instance, filename):
+    imagename, extention = filename.split(".")
+    return f"profile/{instance.user.id}/{instance.user.username}.{extention}"
 
 # Create your models here.
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=15)
-    image = models.ImageField(upload_to="profile/")
+    image = models.ImageField(upload_to=profile_image)
     city = models.ForeignKey("City", related_name="user_city", on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
